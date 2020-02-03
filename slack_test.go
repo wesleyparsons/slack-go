@@ -2,7 +2,6 @@ package slack
 
 import (
 	"flag"
-	"os/user"
 	"testing"
 )
 
@@ -22,29 +21,18 @@ func init() {
 
 func TestSendMessage(t *testing.T) {
 	msg := &Message{}
-	msg.Channel = "#slack-go-test"
-	msg.Text = "Slack API Test from go"
-	user, _ := user.Current()
-	msg.Username = user.Username
+	msg.MessageText = "Slack API Test from go"
 	client.SendMessage(msg)
 }
 
-func TestSendMessageWithAttachement(t *testing.T) {
+func TestSendMessageWithBlock(t *testing.T) {
 	msg := &Message{}
-	msg.Channel = "#slack-go-test"
-	msg.Text = "Slack API Test from go - with attachment"
-	user, _ := user.Current()
-	msg.Username = user.Username
+	msg.MessageText = "This is a test message using Blocks in Go"
 
-	attach := msg.NewAttachment()
-	attach.Text = "This is an attachment!"
-	attach.Pretext = "This is the pretext of an attachment"
-	attach.Color = "good"
-	attach.Fallback = "That's the fallback field"
-
-	field := attach.NewField()
-	field.Title = "Field one"
-	field.Value = "Field one value"
+	block := msg.NewMessageBlock()
+	block.BlockType = "section"
+	block.BlockText.Type = "mrkdwn"
+	block.BlockText.Text = "This message was sent from Go using Blocks"
 
 	client.SendMessage(msg)
 }

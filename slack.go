@@ -13,28 +13,18 @@ type Client struct {
 }
 
 type Message struct {
-	Text        string        `json:"text"`
-	Username    string        `json:"username"`
-	IconUrl     string        `json:"icon_url"`
-	IconEmoji   string        `json:"icon_emoji"`
-	Channel     string        `json:"channel"`
-	UnfurlLinks bool          `json:"unfurl_links"`
-	Attachments []*Attachment `json:"attachments"`
+	MessageText string `json:text`
+	MessageBlock []*MessageBlock `json:blocks`
 }
 
-type Attachment struct {
-	Title    string   `json:"title"`
-	Fallback string   `json:"fallback"`
-	Text     string   `json:"text"`
-	Pretext  string   `json:"pretext"`
-	Color    string   `json:"color"`
-	Fields   []*Field `json:"fields"`
+type MessageBlock struct {
+	BlockType string `json:type`
+	BlockText BlockText `json:text`
 }
 
-type Field struct {
-	Title string `json:"title"`
-	Value string `json:"value"`
-	Short bool   `json:"short"`
+type BlockText struct {
+	Type string `json:type`
+	Text string `json:text`
 }
 
 type SlackError struct {
@@ -62,6 +52,10 @@ func (c *Client) SendMessage(msg *Message) error {
 	}
 	defer resp.Body.Close()
 
+	htmlData, err := ioutil.ReadAll(resp.Body)
+
+	fmt.Println(string(htmlData))
+
 	if resp.StatusCode != 200 {
 		t, _ := ioutil.ReadAll(resp.Body)
 		return &SlackError{resp.StatusCode, string(t)}
@@ -70,22 +64,12 @@ func (c *Client) SendMessage(msg *Message) error {
 	return nil
 }
 
-func (m *Message) NewAttachment() *Attachment {
-	a := &Attachment{}
-	m.AddAttachment(a)
-	return a
+func (m *Message) NewMessageBlock() *MessageBlock {
+	mb := &MessageBlock{}
+	m.AddMessageBlock(mb)
+	return mb
 }
 
-func (m *Message) AddAttachment(a *Attachment) {
-	m.Attachments = append(m.Attachments, a)
-}
-
-func (a *Attachment) NewField() *Field {
-	f := &Field{}
-	a.AddField(f)
-	return f
-}
-
-func (a *Attachment) AddField(f *Field) {
-	a.Fields = append(a.Fields, f)
+func (m *Message) AddMessageBlock(mb *MessageBlock) {
+	m.MessageBlock = append(m.MessageBlock, mb)
 }
